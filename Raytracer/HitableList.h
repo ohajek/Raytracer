@@ -1,3 +1,5 @@
+#ifndef HITABLELIST_H
+#define HITABLELIST_H
 #pragma once
 
 #include "Hitable.h"
@@ -11,3 +13,5 @@ public:
 	Hitable **list;
 	int list_size;
 };
+
+#endif

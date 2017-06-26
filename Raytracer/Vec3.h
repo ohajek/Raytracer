@@ -1,3 +1,5 @@
+#ifndef VEC3_H
+#define VEC3_H
 #pragma once
 #include <math.h>
 #include <stdlib.h>
@@ -148,3 +150,5 @@ inline Vec3& Vec3::operator/=(const float t) {
 	e[2] *= k;
 	return *this;
 }
+
+#endif

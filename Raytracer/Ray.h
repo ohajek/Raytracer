@@ -1,3 +1,5 @@
+#ifndef RAY_H
+#define RAY_H
 #pragma once
 #include "Vec3.h"
 #include <glm/glm.hpp>
@@ -24,3 +26,5 @@ public:
 	glm::vec3 A;
 	glm::vec3 B;
 };
+
+#endif

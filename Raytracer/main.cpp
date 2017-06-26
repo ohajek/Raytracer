@@ -8,6 +8,7 @@
 #include "HitableList.h"
 #include "Camera.h"
 #include "Random.h"
+//#include "Material.h"
 
 
 bool openIO(std::fstream& file, const char* filename) {
@@ -27,24 +28,20 @@ bool openIO(std::fstream& file, const char* filename) {
 	return true;
 }
 
-glm::vec3 random_in_unit_sphere() {
-	glm::vec3 p;
-	do {
-		myRand::Xorshift rng(rand());
-		p = 2.0f * glm::vec3(rng(), rng(), rng()) - glm::vec3(1, 1, 1);
-	} while (glm::pow(glm::length(p), 2)/*p.squared_length()*/ >= 1.0f);
-	return p;
-}
-
-glm::vec3 color(const Ray& r, Hitable *world) {
+glm::vec3 color(const Ray& r, Hitable *world, int depth) {
 	hit_record rec;
-	if (world->hit(r, 0.0f, FLT_MAX, rec)) {
-		//return 0.5f * glm::vec3(rec.normal.x + 1, rec.normal.y + 1, rec.normal.z + 1);
-		glm::vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-		return 0.5f * color(Ray(rec.p, target - rec.p), world);
+	if (world->hit(r, 0.001f, FLT_MAX, rec)) {
+		Ray scattered;
+		glm::vec3 attenuation;
+		if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+			return attenuation * color(scattered, world, depth + 1);
+		}
+		else {
+			return glm::vec3(0.0f);
+		}
 	}
 	else {
-		glm::vec3 unit_direction = glm::normalize(r.direction());/*unit_vector(r.direction())*/;
+		glm::vec3 unit_direction = glm::normalize(r.direction());
 		float t = 0.5f * (unit_direction.y + 1.0f);
 		return (1.0f - t) * glm::vec3(1.0f, 1.0f, 1.0f) + t * glm::vec3(0.5f, 0.7f, 1.0f);
 	}
@@ -53,7 +50,7 @@ glm::vec3 color(const Ray& r, Hitable *world) {
 int main() {
 	int nx = 200;
 	int ny = 100;
-	int ns = 10;
+	int ns = 50;
 	unsigned int numPixels = nx * ny;
 	unsigned int *framebuffer;
 	framebuffer = new unsigned int[numPixels];
@@ -67,10 +64,12 @@ int main() {
 	}
 
 	file << "P3\n" << nx << " " << ny << "\n255\n";
-	Hitable *list[2];
-	list[0] = new Sphere(glm::vec3(0, 0, -1), 0.5f);
-	list[1] = new Sphere(glm::vec3(0, -100.5f, -1), 100);
-	Hitable *world = new HitableList(list, 2);
+	Hitable *list[4];
+	list[0] = new Sphere(glm::vec3(0, 0, -1), 0.5f, new Lambertian(glm::vec3(0.8f, 0.3f, 0.3f)));
+	list[1] = new Sphere(glm::vec3(0, -100.5f, -1), 100,  new Lambertian(glm::vec3(0.8f, 0.8f, 0.0f)));
+	list[2] = new Sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f,  new Metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.3f));
+	list[3] = new Sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f,  new Metal(glm::vec3(0.8f, 0.8f, 0.8f), 1.0f));
+	Hitable *world = new HitableList(list, 4);
 	Camera cam;
 	glm::vec3 col(0, 0, 0);
 	//TODO: sprav to#pragma omp parallel for private(col)
@@ -83,7 +82,7 @@ int main() {
 				float v = float(j + rng()) / float(ny);
 				Ray r = cam.get_ray(u, v);
 				glm::vec3 p = r.point_at_parameter(2.0f);
-				col += color(r, world);
+				col += color(r, world, 0);
 			}
 			col /= float(ns);
 			col = glm::vec3(sqrt(col.r), sqrt(col.g), sqrt(col.b));

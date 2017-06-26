@@ -1,3 +1,5 @@
+#ifndef CAMERA_H
+#define CAMERA_H
 #pragma once
 
 
@@ -21,3 +23,5 @@ public:
 	glm::vec3 horizontal;
 	glm::vec3 vertical;
 };
+
+#endif
