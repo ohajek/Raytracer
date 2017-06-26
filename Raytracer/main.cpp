@@ -53,7 +53,7 @@ glm::vec3 color(const Ray& r, Hitable *world) {
 int main() {
 	int nx = 200;
 	int ny = 100;
-	int ns =2;
+	int ns = 10;
 	unsigned int numPixels = nx * ny;
 	unsigned int *framebuffer;
 	framebuffer = new unsigned int[numPixels];
@@ -73,10 +73,9 @@ int main() {
 	Hitable *world = new HitableList(list, 2);
 	Camera cam;
 	glm::vec3 col(0, 0, 0);
-	//#pragma omp parallel for private(col)
-	#pragma omp parallel for schedule(dynamic, 1) private(col) //OpenMP
+	//TODO: sprav to#pragma omp parallel for private(col)
 	for (int j = ny-1; j >= 0; j--) {
-		for (int i = 0, k = (ny - j)*nx + i; i < nx; i++) {
+		for (int i = 0; i < nx; i++) {
 			col = glm::vec3(0.0f);
 			for (int s = 0; s < ns; s++) {
 				myRand::Xorshift rng(rand());
@@ -91,16 +90,7 @@ int main() {
 			int ir = int(255.99 * col.r);
 			int ig = int(255.99 * col.g);
 			int ib = int(255.99 * col.b);
-			framebuffer[k] = ir |
-				ig << 8 |
-				ib << 16;
-		}
-	}
-
-
-	for (int j = ny-1; j >= 0; j--) {
-		for (int i = 0, k = (ny - j - 1)*nx + i; i < nx; i++) {
-			file << framebuffer[k] << " " << (framebuffer[k]>>8) << " " << (framebuffer[k]>>16) << "\n";
+			file << ir << " " << ig << " " << ib << "\n";
 		}
 	}
 	file.close();
