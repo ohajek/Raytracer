@@ -1,6 +1,6 @@
 #ifndef RAY_H
 #define RAY_H
-#pragma once
+
 #include "Vec3.h"
 #include <glm/glm.hpp>
 

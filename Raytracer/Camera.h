@@ -1,7 +1,5 @@
 #ifndef CAMERA_H
 #define CAMERA_H
-#pragma once
-
 
 #include "Ray.h"
 

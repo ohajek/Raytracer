@@ -1,6 +1,6 @@
 #ifndef VEC3_H
 #define VEC3_H
-#pragma once
+
 #include <math.h>
 #include <stdlib.h>
 #include <iostream>

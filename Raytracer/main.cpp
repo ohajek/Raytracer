@@ -8,8 +8,7 @@
 #include "HitableList.h"
 #include "Camera.h"
 #include "Random.h"
-//#include "Material.h"
-
+#include "Material.h"
 
 bool openIO(std::fstream& file, const char* filename) {
 	file.open(filename); // Try to open for I/O
@@ -48,9 +47,9 @@ glm::vec3 color(const Ray& r, Hitable *world, int depth) {
 }
 
 int main() {
-	int nx = 200;
-	int ny = 100;
-	int ns = 50;
+	int nx = 800;
+	int ny = 400;
+	int ns = 1;
 	unsigned int numPixels = nx * ny;
 	unsigned int *framebuffer;
 	framebuffer = new unsigned int[numPixels];
@@ -64,12 +63,13 @@ int main() {
 	}
 
 	file << "P3\n" << nx << " " << ny << "\n255\n";
-	Hitable *list[4];
+	Hitable *list[5];
 	list[0] = new Sphere(glm::vec3(0, 0, -1), 0.5f, new Lambertian(glm::vec3(0.8f, 0.3f, 0.3f)));
 	list[1] = new Sphere(glm::vec3(0, -100.5f, -1), 100,  new Lambertian(glm::vec3(0.8f, 0.8f, 0.0f)));
 	list[2] = new Sphere(glm::vec3(1.0f, 0.0f, -1.0f), 0.5f,  new Metal(glm::vec3(0.8f, 0.6f, 0.2f), 0.3f));
-	list[3] = new Sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f,  new Metal(glm::vec3(0.8f, 0.8f, 0.8f), 1.0f));
-	Hitable *world = new HitableList(list, 4);
+	list[3] = new Sphere(glm::vec3(-1.0f, 0.0f, -1.0f), 0.5f,  new Dielectric(1.5f));
+	list[4] = new Sphere(glm::vec3(-1.0f, 0.0f, -1.0f), -0.45f,  new Dielectric(1.5f));
+	Hitable *world = new HitableList(list, 5);
 	Camera cam;
 	glm::vec3 col(0, 0, 0);
 	//TODO: sprav to#pragma omp parallel for private(col)
@@ -81,7 +81,7 @@ int main() {
 				float u = float(i + rng()) / float(nx);
 				float v = float(j + rng()) / float(ny);
 				Ray r = cam.get_ray(u, v);
-				glm::vec3 p = r.point_at_parameter(2.0f);
+				//glm::vec3 p = r.point_at_parameter(2.0f);
 				col += color(r, world, 0);
 			}
 			col /= float(ns);

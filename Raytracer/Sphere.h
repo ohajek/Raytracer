@@ -1,6 +1,6 @@
 #ifndef SPHERE_H
 #define SPHERE_H
-#pragma once
+
 #include "Hitable.h"
 
 class Sphere : public Hitable {
